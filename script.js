@@ -26,13 +26,18 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { Accept: 'application/json' }
       });
 
-      if (!response.ok) throw new Error('Formspree request failed');
+      const result = await response.json();
+      if (!response.ok || !result.ok) {
+        const message = result.errors?.map((item) => item.message).join(' ') || 'Formspree did not accept this request.';
+        throw new Error(message);
+      }
 
       form.hidden = true;
       success.hidden = false;
       success.focus();
     } catch (submissionError) {
       error.hidden = false;
+      error.textContent = submissionError.message || 'We couldn’t send your request. Please call us at (502) 507-0741.';
       submitButton.disabled = false;
       submitButton.innerHTML = 'Send My Delivery Request <span aria-hidden="true">&rarr;</span>';
     }
